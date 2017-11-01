@@ -2,5 +2,18 @@
 if [ -d "$HOME/.eksiautoentry" ]; then
   rm -rf "$HOME/.eksiautoentry"
 fi
-echo "Make sure to remove the cron job that is entered with the setup string."
-echo "The string combination is --> 0 * * * * python $HOME/.eksiautoentry/pp.py"
+
+search_string="0 * * * * python $HOME/.eksiautoentry/pp.py"
+crontab -l > tempcron
+ctr=1
+while IFS='' read -r line || [[ -n "$line" ]]; do
+  if [ "$search_string" == "$line" ]; then
+    sed -i.bak "${ctr}d" tempcron
+  fi
+  ((ctr++))
+done < tempcron
+
+crontab tempcron
+rm tempcron
+rm tempcron.bak
+echo "DONE !"

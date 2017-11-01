@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 #https://eksisozluk.com/sabire-meltem-banko--5483631
-
 import mechanize
 import sys
 import re
@@ -55,8 +55,9 @@ def main():
     html_of_header = str(r.read())
     page_count = html_of_header.find('data-pagecount')
     if page_count is -1:
-        print('There is only 1 page, adding the entry.')
         #entry adding occurs here
+        checkFirstEntry(html_of_header)
+        print('Adding the entry.')
         createEntry(user_data,browser)
         sys.exit(0)
     else:
@@ -69,8 +70,14 @@ def main():
 #        createEntry(user_data,browser)
 #        print('page count is bigger than 1')
 
-def manual_mode():
-    pass
+def checkFirstEntry(response_html):
+    found_entry = response_html.find('bu başlıkta yer alan içeriklere erişimin engellenmesine karar verilmiştir.')
+    if found_entry is -1:
+        print('There has not been any entry deletion. Exiting...')
+        sys.exit(1)
+    print('Entries were deleted from this header.')
+    #we can also check all the entries in case someone deletes the previous entry and restores it, so that the first entry is not the deletion entry
+    #seems redundant for now ?
 
 def createEntry(user_data,browser):
     header_name = user_data.baslik
@@ -79,7 +86,7 @@ def createEntry(user_data,browser):
         try:
             browser.form = list(browser.forms())[3]#get the entry adder form
         except IndexError:
-            print('Login Failed !\nCheck your credientials !')
+            print('Login Somehow Failed !\nCheck your credientials !')
             sys.exit(1)#if there is no 4'th form, that means that login has failed
                        #exit immediately(somehow it skips the first sys.exit,highly unlikely)
         browser.form['Content'] = user_data.entry
