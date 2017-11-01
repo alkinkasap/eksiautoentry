@@ -34,7 +34,6 @@ def main():
     response = browser.submit()
 
     html_file = response.read()
-    another = html_file
     html_file = str(html_file)
     #print(html_file.find("eauthor"))
     __index = html_file.find("eauthor")
