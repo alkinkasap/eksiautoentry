@@ -3,7 +3,7 @@ if [ -d "$HOME/.eksiautoentry" ]; then
   rm -rf "$HOME/.eksiautoentry"
 fi
 
-search_string="0 * * * * python $HOME/.eksiautoentry/pp.py"
+search_string="0 * * * * python $HOME/.eksiautoentry/pp.py $HOME/.eksiautoentry/config.JSON"
 crontab -l > tempcron
 ctr=1
 while IFS='' read -r line || [[ -n "$line" ]]; do
