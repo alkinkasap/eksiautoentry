@@ -86,7 +86,7 @@ def createEntry(user_data,browser):
         try:
             browser.form = list(browser.forms())[3]#get the entry adder form
         except IndexError:
-            print('Login Somehow Failed !\nCheck your credientials !')
+            print('Login Somehow Failed !\nCheck your credientials ! (Maybe the site did not exist ? \'cause script could not find the entry adder form)')
             sys.exit(1)#if there is no 4'th form, that means that login has failed
                        #exit immediately(somehow it skips the first sys.exit,highly unlikely)
         browser.form['Content'] = user_data.entry
