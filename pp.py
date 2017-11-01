@@ -8,7 +8,7 @@ import json
 
 class Configuration:
     def __init__(self):
-        with open('config.JSON') as config:
+        with open(str(sys.argv[1])) as config:
             data = json.load(config)
             self.username = data['username']
             self.password = data['password']
