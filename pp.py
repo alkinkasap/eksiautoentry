@@ -41,7 +41,7 @@ def main():
 
     nick_limit = 42#set the nick limit !(nick limit for eksisozluk is 40)
 
-    user_name = html_file[__index+11:__index + nick_limit]
+    user_name = html_file[__index+11:__index + nick_limit + 11]
 
     user_name = user_name.split(',')[0]
     user_name = user_name[:len(user_name)-1]
