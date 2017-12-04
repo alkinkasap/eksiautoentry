@@ -71,7 +71,7 @@ def main():
 #        print('page count is bigger than 1')
 def checkIfEntryIsGiven(response_html,user_data):
     found_id = response_html.find(user_data.entry)
-    if found_id is -1:
+    if found_id is not -1:
         sys.exit(1)
         print('Already entered an entry')
 
