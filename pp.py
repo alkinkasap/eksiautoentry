@@ -19,7 +19,6 @@ class Configuration:
 def main():
     print("-------------------------------")
     print("Ran on" + str(time.strftime('%X %x %Z')))
-    sys.exit(0)
     user_data = Configuration()
     print(user_data.entry)
     browser = mechanize.Browser()
