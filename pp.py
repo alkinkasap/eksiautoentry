@@ -17,16 +17,17 @@ class Configuration:
 
 
 def main():
-    print("-------------------------------")
-    print("Ran on" + str(time.strftime('%X %x %Z')))
     user_data = Configuration()
-    print(user_data.entry)
+    #print(user_data.entry)
     browser = mechanize.Browser()
     browser.set_handle_robots(False)
     cookies = mechanize.CookieJar()
     browser.set_cookiejar(cookies)
     browser.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.7 (KHTML, like Gecko) Chrome/7.0.517.41 Safari/534.7')]
     browser.set_handle_refresh(False)
+
+    print("----------------------------------------")
+    print("Running on " + str(time.strftime('%X %x %Z')))
 
     url = 'https://www.eksisozluk.com/giris'
     browser.open(url)
