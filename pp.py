@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-#https://eksisozluk.com/sabire-meltem-banko--5483631
+# https://eksisozluk.com/sabire-meltem-banko--5483631
 import mechanize
 import sys
-import re
 import json
-#from pprint import pprint
+
 
 class Configuration:
     def __init__(self):
@@ -14,7 +13,8 @@ class Configuration:
             self.password = data['password']
             self.entry = data['entry']
             self.baslik = data['baslik']
-        #pprint(data)
+        # pprint(data)
+
 
 def main():
     user_data = Configuration()
@@ -28,17 +28,17 @@ def main():
     url = 'https://www.eksisozluk.com/giris'
     browser.open(url)
 
-    browser.form = list(browser.forms())[2]#get the login form
+    browser.form = list(browser.forms())[2]  # get the login form
     browser.form['UserName'] = user_data.username
     browser.form['Password'] = user_data.password
     response = browser.submit()
 
     html_file = response.read()
     html_file = str(html_file)
-    #print(html_file.find("eauthor"))
+    # print(html_file.find("eauthor"))
     __index = html_file.find("eauthor")
 
-    nick_limit = 42#set the nick limit !(nick limit for eksisozluk is 40)
+    nick_limit = 42  # set the nick limit !(nick limit for eksisozluk is 40)
 
     user_name = html_file[__index+11:__index + nick_limit + 11]
 
@@ -47,18 +47,18 @@ def main():
     user_name = user_name.replace(" ","-")
     if len(user_name) is 0:
         print('Login failed !\nCheck your credientials !(or maybe there is a captcha check ?)')
-        sys.exit(1)#this should ensure that login was not succesful
+        sys.exit(1) # this should ensure that login was not succesful
     print('Welcome '+user_name+'\nLogin was succesful')
     header_name = user_data.baslik
     r = browser.open("https://eksisozluk.com/"+header_name)
     html_of_header = str(r.read())
     page_count = html_of_header.find('data-pagecount')
     if page_count is -1:
-        #entry adding occurs here
-        checkFirstEntry(html_of_header)
-        checkIfEntryIsGiven(html_of_header,user_data)
+        # entry adding occurs here
+        check_first_entry(html_of_header)
+        check_if_entry_is_given(html_of_header, user_data)
         print('Adding the entry.')
-        createEntry(user_data,browser)
+        create_entry(user_data, browser)
         sys.exit(0)
     else:
         print('No entry deletion occurred. Exiting...')
@@ -69,37 +69,43 @@ def main():
 #    if page_count > 1:
 #        createEntry(user_data,browser)
 #        print('page count is bigger than 1')
-def checkIfEntryIsGiven(response_html,user_data):
+
+
+def check_if_entry_is_given(response_html, user_data):
     found_id = response_html.find(user_data.entry)
     if found_id is not -1:
         sys.exit(1)
         print('Already entered an entry')
 
-def checkFirstEntry(response_html):
+
+def check_first_entry(response_html):
     found_entry = response_html.find('bu başlıkta yer alan içeriklere erişimin engellenmesine karar verilmiştir.')
     if found_entry is -1:
         print('There has not been any entry deletion. Exiting...')
         sys.exit(1)
     print('Entries were deleted from this header.')
-    #we can also check all the entries in case someone deletes the previous entry and restores it, so that the first entry is not the deletion entry
-    #seems redundant for now ?
+    # we can also check all the entries in case someone deletes the previous entry
+    # and restores it, so that the first entry is not the deletion entry
+    # seems redundant for now ?
 
-def createEntry(user_data,browser):
+
+def create_entry(user_data, browser):
     header_name = user_data.baslik
     r = browser.open("https://eksisozluk.com/"+header_name)
     if int(r.code) is 200:
         try:
             browser.form = list(browser.forms())[3]#get the entry adder form
         except IndexError:
-            print('Login Somehow Failed !\nCheck your credientials ! (Maybe the site did not exist ? \'cause script could not find the entry adder form)')
-            sys.exit(1)#if there is no 4'th form, that means that login has failed
-                       #exit immediately(somehow it skips the first sys.exit,highly unlikely)
+            print('Login Somehow Failed !\nCheck your credentials ! (Maybe the site did not exist ?'
+                  ' \'cause script could not find the entry adder form)')
+            sys.exit(1)  # if there is no 4'th form, that means that login has failed
+                         # exit immediately(somehow it skips the first sys.exit,highly unlikely)
         browser.form['Content'] = user_data.entry
         response = browser.submit()
         __code = int(response.code)
 
         if __code is 200:
-            print('Succesfully added the entry.')
+            print('Successfully added the entry.')
             sys.exit(0)
         else:
             print('Failed to add the entry.')
@@ -107,6 +113,7 @@ def createEntry(user_data,browser):
     else:
         print('Cannot open the webpage !')
         sys.exit(1)
+
 
 if __name__ == '__main__':
     main()
