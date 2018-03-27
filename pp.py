@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# encoding=utf8
 # https://eksisozluk.com/sabire-meltem-banko--5483631
 import mechanize
 import sys
@@ -47,21 +47,33 @@ def main():
     user_name = user_name.replace(" ","-")
     if len(user_name) is 0:
         print('Login failed !\nCheck your credientials !(or maybe there is a captcha check ?)')
+        browser.close()
         sys.exit(1) # this should ensure that login was not succesful
     print('Welcome '+user_name+'\nLogin was succesful')
     header_name = user_data.baslik
-    r = browser.open("https://eksisozluk.com/"+header_name)
+    find_header = browser.open("https://eksisozluk.com/")
+    browser.form = list(browser.forms())[0]
+    browser.form['q'] = header_name
+    _found = browser.submit()
+    _url = _found.geturl()
+    # print("https://eksisozluk.com/"+header_name)
+    r = browser.open(_url)
+    if (r.code == 404):
+        print("Page not found.")
+        browser.close()
+        sys.exit(1)
     html_of_header = str(r.read())
+    html_of_header = html_of_header.decode('utf-8')
     page_count = html_of_header.find('data-pagecount')
     if page_count is -1:
         # entry adding occurs here
         check_first_entry(html_of_header)
         check_if_entry_is_given(html_of_header, user_data)
         print('Adding the entry.')
-        create_entry(user_data, browser)
-        sys.exit(0)
+        create_entry(user_data, browser,r)
     else:
         print('No entry deletion occurred. Exiting...')
+        browser.close()
         sys.exit(-1)
 #    html_of_header = html_of_header[page_count:]
 #    _id = re.findall('pagecount="(.*?)"', html_of_header)
@@ -74,14 +86,17 @@ def main():
 def check_if_entry_is_given(response_html, user_data):
     found_id = response_html.find(user_data.entry)
     if found_id is not -1:
-        sys.exit(1)
+        browser.close()
         print('Already entered an entry')
+        sys.exit(1)
+        
 
 
 def check_first_entry(response_html):
-    found_entry = response_html.find('bu başlıkta yer alan içeriklere erişimin engellenmesine karar verilmiştir.')
+    found_entry = response_html.find(('bu başlıkta yer alan içeriklere erişimin engellenmesine karar verilmiştir.').decode('utf-8'))
     if found_entry is -1:
         print('There has not been any entry deletion. Exiting...')
+        browser.close()
         sys.exit(1)
     print('Entries were deleted from this header.')
     # we can also check all the entries in case someone deletes the previous entry
@@ -89,29 +104,24 @@ def check_first_entry(response_html):
     # seems redundant for now ?
 
 
-def create_entry(user_data, browser):
-    header_name = user_data.baslik
-    r = browser.open("https://eksisozluk.com/"+header_name)
-    if int(r.code) is 200:
-        try:
-            browser.form = list(browser.forms())[3]#get the entry adder form
-        except IndexError:
-            print('Login Somehow Failed !\nCheck your credentials ! (Maybe the site did not exist ?'
-                  ' \'cause script could not find the entry adder form)')
-            sys.exit(1)  # if there is no 4'th form, that means that login has failed
+def create_entry(user_data, browser,r):
+    try:
+        browser.form = list(browser.forms())[3]#get the entry adder form
+    except IndexError:
+        print('Login Somehow Failed !\nCheck your credentials ! (Maybe the site did not exist ?'
+            ' \'cause script could not find the entry adder form)')
+        browser.close()
+        sys.exit(1)  # if there is no 4'th form, that means that login has failed
                          # exit immediately(somehow it skips the first sys.exit,highly unlikely)
-        browser.form['Content'] = user_data.entry
-        response = browser.submit()
-        __code = int(response.code)
-
-        if __code is 200:
-            print('Successfully added the entry.')
-            sys.exit(0)
-        else:
-            print('Failed to add the entry.')
-            sys.exit(1)
+    browser.form['Content'] = user_data.entry
+    response = browser.submit()
+    __code = int(response.code)
+    browser.close()
+    if __code is 200:
+        print('Successfully added the entry.')
+        sys.exit(0)
     else:
-        print('Cannot open the webpage !')
+        print('Failed to add the entry.')
         sys.exit(1)
 
 
